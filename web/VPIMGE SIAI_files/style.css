@@ -1,0 +1,219 @@
+/*  ----------------
+        SIAI css
+    ---------------- */
+body {
+	font-family:tahoma;
+	padding:0px;
+	background:#FCFCFC;
+	margin: 0 auto;
+}
+
+div.content {
+	width: 800px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+
+
+div.content h1 {
+	font-size:18pt;
+	border-bottom:5px solid #360;
+	width:100%;
+}
+
+/* MM en todos los table puede ir asi
+
+div.content div.cbody div.data table 
+
+*/
+
+div.content div.data table {
+	border:2px solid #000;
+	background:#fff;
+
+}
+div.content div.data table td {
+	font-size:10pt;
+	padding:5px 10px;
+	border-bottom:1px solid #ddd;
+	text-align: left;
+}
+div.content div.data table th {
+	text-align: left;
+	font-size: 8pt;
+	text-transform: uppercase;
+	color: #fff;
+	background:#030;
+}
+
+div.paging {
+	font-size: 9pt;
+	margin:5px 0px;
+}
+div.paging a {
+	color:#030;
+	text-transform: uppercase;
+	text-decoration: none;
+}
+div.paging a:hover {
+	color:#c00;
+}
+div.paging b {
+	color:#030;
+}
+
+div.success {
+	font-size:14pt;
+	background:url(images/accept.png) left 5px no-repeat;
+	padding:0px;
+	padding-left:20px;
+	margin:0px 0px 10px;
+	color:#060;
+	width:80%;
+}
+
+a.update, a.delete, a.add, a.view, a.back {
+	font-size: 9pt;
+	color:#030;
+	font-wight:bold;
+	padding-left:20px;
+	text-decoration: none;
+}
+a.update {
+	background:url(images/update.png) left center no-repeat;
+}
+a.delete {
+	background:url(images/delete.png) left center no-repeat;
+}
+a.add {
+	background:url(images/add.png) left center no-repeat;
+}
+a.view {
+	background:url(images/view.png) left center no-repeat;
+}
+a.back {
+	background:url(images/prev.gif) left center no-repeat;
+}
+a.update:hover, a.delete:hover, a.add:hover, a.view:hover {
+	color:#000;
+}
+
+input.text {
+	border:2px solid #aaa;
+}
+
+.error {
+	background: #FBE6F2 none repeat scroll 0 0;
+	border: 1px solid #D893A1;
+	color: #333333;
+	margin: 5px 0 0;
+	padding: 5px;
+	font-size: 10px;
+	font-family: Lucida Grande,Verdana,Geneva,Sans-serif;
+}
+
+
+/* Header - Menu - Body - Foot */
+div.content div.cheader {
+	background:#CCE3CA;
+	/*background:url(header.jpg) repeat-y;;*/
+	min-height:100px;
+	/*border-bottom:5px solid #030;*/
+	background-image:url(images/cabecera.png);
+}
+
+div.content div.cmenu {
+	background-color: #C2DCC7; 
+	float:left; 
+	width: 190px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+
+div.content div.cmenu ul
+{
+	margin : 0 0 0 0px; 
+	padding: 0 0 0 0px; 
+	list-style: none; 
+} 
+div.content div.cmenu li
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top:5px;
+	width:180px;
+	border-bottom:2px solid #030;
+} 
+
+div.content div.cmenu a
+{
+	display:block;
+	color:#030;
+	text-decoration: none;
+	font-size:14px;
+}
+div.content div.cmenu a:hover
+{
+	background-color:#030;
+	color:#FFF;
+	font: bold;
+}
+
+
+
+
+div.content div.cbody {
+	background-color: #F0FBF1;
+	width:590px;
+	float:left;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+
+
+/*Menu*/
+.menunav {
+	height:38px;
+	font-size:14px;
+	text-transform:uppercase;
+	font-weight:bold;
+	padding:0 0 0 10px;
+	background: #060;
+}
+.menunav ul {
+	margin:0;
+	padding:0;
+	list-style-type:none;
+	width:auto;
+}
+.menunav ul li {
+	display:block;
+	float:left;
+	margin:0;
+}
+.menunav ul li a {
+	display:block;
+	float:left;
+	color:#EAF3F8;
+	text-decoration:none;
+	height:26px;
+	padding-top:12px;
+	padding-right:20px;
+	padding-left:20px;
+}
+
+.menunav ul li.active a {
+	background: url('images/menunavsel.jpg') repeat-x;
+}
+
+.menunav ul li a:hover {
+	background: url('images/menunavhov.jpg') repeat-x;
+	color:#408080;
+}
