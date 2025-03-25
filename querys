@@ -1,0 +1,67 @@
+CREATE TABLE industrias (
+    id integer PRIMARY KEY AUTOINCREMENT,
+    departamento text NOT NULL,
+    municipio text NOT NULL,
+    cod_reg text NOT NULL,
+    fecha_reg text,
+    caeb integer NOT NULL,
+    circ integer NOT NULL,
+    nom_unidad text,
+    razon_social text,
+    rep_legal text,
+    latitud real,
+    longitud real,
+    foreign key (circ) references circ (id) 
+    );
+    
+CREATE TABLE circ(
+    id integer PRIMARY KEY AUTOINCREMENT,
+    circ text NOT NULL);
+
+INSERT INTO circ(circ) VALUES ('SC');   
+INSERT INTO circ(circ) VALUES ('1-2');
+INSERT INTO circ(circ) VALUES ('3');
+INSERT INTO circ(circ) VALUES ('4');
+
+CREATE TABLE departamentos (
+    cod_depto text PRIMARY KEY,
+    departamento text NOT NULL,
+    sigla text NOT NULL); 
+    
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('01','CHUQUISACA','LP');
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('02','LA PAZ','LP');
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('03','COCHABAMBA','CBBA');
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('04','ORURO','OR');
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('05','POTOSI','PT');
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('06','TARIJA','TJ');
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('07','SANTA CRUZ','SCZ');
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('08','BENI','BN');
+INSERT INTO departamentos(cod_depto,departamento,sigla) values ('09','PANDO','PN');
+
+CREATE TABLE municipios (
+    concat text PRIMARY KEY,
+    cod_depto text,
+    depto text,
+    cod_prov text,
+    prov text,
+    cod_mpio text,
+    mpio text
+);
+
+select distinct nom_unidad from industrias;
+select nom_unidad from industrias;
+select * from industrias where cod_reg = '0710010593';
+
+delete from industrias;
+
+SELECT 
+    industrias.*,
+    circ_std.circ AS nombre_circ
+FROM 
+    industrias
+JOIN 
+    circ_std
+ON 
+    industrias.circ = circ_std.id;
+
+PRAGMA table_info(industrias);
