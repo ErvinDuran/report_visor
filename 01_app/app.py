@@ -1,81 +1,56 @@
 import sqlite3
 import pandas as pd
-<<<<<<< HEAD
-=======
-import matplotlib.pyplot as plt
+import plotly.express as px
 import numpy as np
+from shiny import App, render, ui, reactive
+from shinywidgets import output_widget, render_widget
 
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
-from shiny import App, render, ui
 from connection import *
 
 df = get_data()
 total = str(df.shape[0])
 departamentos = sorted(df['departamento'].unique().tolist())
-<<<<<<< HEAD
-=======
 categorias = sorted(df['circ_descripcion'].unique().tolist())
-print(categorias)
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
 
 # Interfaz de usuario
 app_ui = ui.page_sidebar(
     ui.sidebar(
         ui.input_dark_mode(),
         ui.h6('En este dashboard se representan los datos registrados hasta la fecha actual'),
-<<<<<<< HEAD
-=======
         ui.input_action_button('action','Todos'),
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
-        ui.input_select('departamento','Selecciona un departamento:',departamentos)
+        ui.input_select('departamento','Selecciona un departamento:',departamentos),
+        ui.input_select('municipio','Seleccione un municipio',['m1','m2'])
     ),
     ui.layout_column_wrap(
         ui.value_box(
-<<<<<<< HEAD
-            'Valor superior',
-            'valor intermadio o cuerpo'
-            ,'nota',
-            theme='blue',
-=======
             'Total de registros',
-            'valor intermadio o cuerpo'
-            ,'nota',
+            ui.tags.div(
+                ui.output_text('count'),
+                style='font-size: 90px; font-weight: bold;'
+            ),
             theme='orange',
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
             full_screen = False
             ),
             
         ui.value_box(
-<<<<<<< HEAD
-            'Valor superior',
-=======
             'Registros categoría 1y2',
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
-            'valor intermedio o cuerpo'
-            ,'nota',
+            'valor intermedio o cuerpo',
+            'nota',
             theme='blue',
             full_screen = False
             ),
             
         ui.value_box(
-<<<<<<< HEAD
-            'Valor superior',
-=======
             'Registros categoría 3',
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
-            'valor intermadio o cuerpo'
+            'valor intermedio o cuerpo'
             ,'nota',
             theme='blue',
             full_screen = False
             ),
         
         ui.value_box(
-<<<<<<< HEAD
-            'Valor superior',
-=======
             'Registros categoría 4',
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
-            'valor intermadio o cuerpo'
+            'valor intermedio o cuerpo'
             ,'nota',
             theme='blue',
             full_screen = False
@@ -83,13 +58,11 @@ app_ui = ui.page_sidebar(
         
         fill = False     
     ),
-<<<<<<< HEAD
-=======
         ui.layout_columns(
         ui.card(
             ui.card_header("U.I. Por departamentos"),
-            ui.output_plot('grafica'),
-            full_screen=True,
+            output_widget('grafica'),
+            full_screen=False,
         ),
         ui.card(
             ui.card_header("Detalle de datos registrados"),
@@ -97,64 +70,49 @@ app_ui = ui.page_sidebar(
             full_screen=True,
         ),
     ),
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
     title = 'Industrias registradas en SIAI'
 )
 # Servidor
 def server(input, output, session):
-<<<<<<< HEAD
-    pass
-=======
+
+    @reactive.calc
+    def filtrado_dep():
+        filt_df = df[df['departamento'].isin([input.departamento()])]
+        return filt_df
+    
+    @render.text
+    def count():
+        return filtrado_dep().shape[0]
 
     @render.data_frame
     def datos():
         cols = [
             'industrias_id',
+            'fecha_reg',
             'departamento',
             'municipio',
             'cod_reg',
             'caeb',
             'circ_descripcion'
         ]
-        return render.DataGrid(df[cols])
+        return render.DataGrid(filtrado_dep()[cols], filters=True)
     
-    @render.plot
+    @render_widget
     def grafica():
-        # Agrupar datos por departamento y calcular la suma de cantidades
-        agrupados = df.groupby("departamento")["industrias_id"].count()
-        totales = agrupados.tolist()  # Convertir a lista de valores
-        departamentos = agrupados.index.tolist()  # Nombres de departamentos como lista
+        filt_df = df[df['departamento'].isin([input.departamento()])]
+        filt_df['fecha_reg'] = pd.to_datetime(filt_df['fecha_reg'])
+        filt_df['mes_anio'] = filt_df['fecha_reg'].dt.to_period('M')
+        conteo = filt_df['mes_anio'].value_counts().sort_index().reset_index()
+        conteo.columns = ['mes_anio', 'conteo']
+        conteo = filt_df['mes_anio'].value_counts().sort_index().reset_index()
+        conteo.columns = ['mes_anio', 'conteo']
+        # Convertir la columna 'mes_anio' a formato string
+        conteo['mes_anio'] = conteo['mes_anio'].astype(str)
 
-
-        # Función para mostrar porcentaje y valores absolutos
-        def func(pct, allvals):
-            absolute = int(np.round(pct / 100.0 * np.sum(allvals)))
-            return f"{pct:.1f}%\n({absolute:d})"
-
-        # Crear el gráfico de pastel
-        fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(aspect="equal"))
-        wedges, texts, autotexts = ax.pie(
-            totales,
-            autopct=lambda pct: func(pct, totales),
-            textprops=dict(color="w"),
-            startangle=90
-        )
-
-        # Agregar leyenda
-        ax.legend(
-            wedges, departamentos,
-            title="Departamentos",
-            loc="center left",
-            bbox_to_anchor=(1, 0, 0.5, 1)
-        )
-
-        # Personalización del título
-        plt.setp(autotexts, size=8, weight="bold")
-        ax.set_title("Distribución por Departamento")
-
+        # Visualización con Plotly
+        fig = px.bar(conteo, x='mes_anio', y='conteo', title='Registros por Mes y Año',
+                    labels={'mes_anio': 'Mes y Año', 'conteo': 'Número de Registros'})
         return fig
-
->>>>>>> e0d0914de5581ab3a195dab0c05909c5709bd060
 
 # Crear la aplicación
 app = App(app_ui, server)
