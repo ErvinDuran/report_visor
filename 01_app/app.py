@@ -11,7 +11,8 @@ df = get_data()
 total = str(df.shape[0])
 departamentos = sorted(df['departamento'].unique().tolist())
 categorias = sorted(df['circ_descripcion'].unique().tolist())
-
+print(ui.output_text('count'))
+print(ui.output_text('count'))
 # Interfaz de usuario
 app_ui = ui.page_sidebar(
     ui.sidebar(
