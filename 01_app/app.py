@@ -2,23 +2,24 @@ import sqlite3
 import pandas as pd
 import plotly.express as px
 import numpy as np
+
 from shiny import App, render, ui, reactive
 from shinywidgets import output_widget, render_widget
-
 from connection import *
 
 df = get_data()
 total = str(df.shape[0])
+
+# PREPARACIÓN DE DATOS DE CONSULTA Y FILTRO
 departamentos = sorted(df['departamento'].unique().tolist())
+departamentos.insert(0, 'TODOS')
+print(type(departamentos))
 categorias = sorted(df['circ_descripcion'].unique().tolist())
-print(ui.output_text('count'))
-print(ui.output_text('count'))
+
 # Interfaz de usuario
 app_ui = ui.page_sidebar(
     ui.sidebar(
         ui.input_dark_mode(),
-        ui.h6('En este dashboard se representan los datos registrados hasta la fecha actual'),
-        ui.input_action_button('action','Todos'),
         ui.input_select('departamento','Selecciona un departamento:',departamentos),
         ui.input_select('municipio','Seleccione un municipio',['m1','m2'])
     ),
@@ -78,12 +79,21 @@ def server(input, output, session):
 
     @reactive.calc
     def filtrado_dep():
-        filt_df = df[df['departamento'].isin([input.departamento()])]
+        if input.departamento() == 'TODOS':
+            filt_df = df
+        else:
+            filt_df = df[df['departamento'].isin([input.departamento()])]
         return filt_df
     
+    # MUESTRA LOS FILTROS DE LA TABLA DF_FILT
     @render.text
     def count():
         return filtrado_dep().shape[0]
+    
+    @render.text
+    def categoria():
+        lista_conteo = df['circ_descripcion'].value_counts()
+        return lista_conteo
 
     @render.data_frame
     def datos():
@@ -107,6 +117,7 @@ def server(input, output, session):
         conteo.columns = ['mes_anio', 'conteo']
         conteo = filt_df['mes_anio'].value_counts().sort_index().reset_index()
         conteo.columns = ['mes_anio', 'conteo']
+
         # Convertir la columna 'mes_anio' a formato string
         conteo['mes_anio'] = conteo['mes_anio'].astype(str)
 
