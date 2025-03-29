@@ -13,15 +13,21 @@ total = str(df.shape[0])
 # PREPARACIÓN DE DATOS DE CONSULTA Y FILTRO
 departamentos = sorted(df['departamento'].unique().tolist())
 departamentos.insert(0, 'TODOS')
-print(type(departamentos))
-categorias = sorted(df['circ_descripcion'].unique().tolist())
+
+def get_municipios(departamento):
+    if departamento == 'TODOS':
+        municipios = sorted(df['municipio'].unique().tolist())
+    else:
+        municipios = sorted(df[df['departamento'] == departamento]['municipio'].unique().tolist())
+    municipios.insert(0, 'TODOS')
+    return municipios
 
 # Interfaz de usuario
 app_ui = ui.page_sidebar(
     ui.sidebar(
         ui.input_dark_mode(),
-        ui.input_select('departamento','Selecciona un departamento:',departamentos),
-        ui.input_select('municipio','Seleccione un municipio',['m1','m2'])
+        ui.input_select('departamento', 'Selecciona un departamento:', departamentos),
+        ui.input_select('municipio', 'Seleccione un municipio:', get_municipios('TODOS'))
     ),
     ui.layout_column_wrap(
         ui.value_box(
@@ -30,37 +36,12 @@ app_ui = ui.page_sidebar(
                 ui.output_text('count'),
                 style='font-size: 90px; font-weight: bold;'
             ),
-            theme='orange',
-            full_screen = False
-            ),
-            
-        ui.value_box(
-            'Registros categoría 1y2',
-            'valor intermedio o cuerpo',
-            'nota',
-            theme='blue',
-            full_screen = False
-            ),
-            
-        ui.value_box(
-            'Registros categoría 3',
-            'valor intermedio o cuerpo'
-            ,'nota',
-            theme='blue',
-            full_screen = False
-            ),
-        
-        ui.value_box(
-            'Registros categoría 4',
-            'valor intermedio o cuerpo'
-            ,'nota',
-            theme='blue',
-            full_screen = False
-            ),
-        
-        fill = False     
+            theme='bg-gradient-orange-red',
+            full_screen=False
+        ),
+        fill=False
     ),
-        ui.layout_columns(
+    ui.layout_columns(
         ui.card(
             ui.card_header("U.I. Por departamentos"),
             output_widget('grafica'),
@@ -72,58 +53,53 @@ app_ui = ui.page_sidebar(
             full_screen=True,
         ),
     ),
-    title = 'Industrias registradas en SIAI'
+    title='Industrias registradas en SIAI'
 )
+
 # Servidor
 def server(input, output, session):
+    @reactive.calc
+    def municipios_disponibles():
+        return get_municipios(input.departamento())
+
+    @reactive.effect
+    def _():
+        ui.update_select("municipio", choices=municipios_disponibles())
 
     @reactive.calc
-    def filtrado_dep():
-        if input.departamento() == 'TODOS':
-            filt_df = df
-        else:
-            filt_df = df[df['departamento'].isin([input.departamento()])]
+    def filtrado_dep_mun():
+        filt_df = df.copy()
+        
+        if input.departamento() != 'TODOS':
+            filt_df = filt_df[filt_df['departamento'] == input.departamento()]
+        
+        if input.municipio() != 'TODOS':
+            filt_df = filt_df[filt_df['municipio'] == input.municipio()]
+        
         return filt_df
-    
-    # MUESTRA LOS FILTROS DE LA TABLA DF_FILT
+
     @render.text
     def count():
-        return filtrado_dep().shape[0]
-    
-    @render.text
-    def categoria():
-        lista_conteo = df['circ_descripcion'].value_counts()
-        return lista_conteo
+        return filtrado_dep_mun().shape[0]
 
     @render.data_frame
     def datos():
-        cols = [
-            'industrias_id',
-            'fecha_reg',
-            'departamento',
-            'municipio',
-            'cod_reg',
-            'caeb',
-            'circ_descripcion'
-        ]
-        return render.DataGrid(filtrado_dep()[cols], filters=True)
-    
+        cols = ['industrias_id', 'fecha_reg', 'departamento', 'municipio', 'cod_reg', 'caeb', 'circ_descripcion']
+        return render.DataGrid(filtrado_dep_mun()[cols], filters=True)
+
     @render_widget
     def grafica():
-        filt_df = df[df['departamento'].isin([input.departamento()])]
+        filt_df = filtrado_dep_mun().copy()
         filt_df['fecha_reg'] = pd.to_datetime(filt_df['fecha_reg'])
-        filt_df['mes_anio'] = filt_df['fecha_reg'].dt.to_period('M')
-        conteo = filt_df['mes_anio'].value_counts().sort_index().reset_index()
-        conteo.columns = ['mes_anio', 'conteo']
-        conteo = filt_df['mes_anio'].value_counts().sort_index().reset_index()
-        conteo.columns = ['mes_anio', 'conteo']
+        filt_df['anio'] = filt_df['fecha_reg'].dt.to_period('Y')
+        conteo = filt_df['anio'].value_counts().sort_index().reset_index()
+        conteo.columns = ['anio', 'conteo']
+        conteo['anio'] = conteo['anio'].astype(str)
+        
+        fig = px.bar(conteo, x='anio', y='conteo', title='Registros por Año',
+                     labels={'anio': 'Año', 'conteo': 'Número de Registros'})
 
-        # Convertir la columna 'mes_anio' a formato string
-        conteo['mes_anio'] = conteo['mes_anio'].astype(str)
-
-        # Visualización con Plotly
-        fig = px.bar(conteo, x='mes_anio', y='conteo', title='Registros por Mes y Año',
-                    labels={'mes_anio': 'Mes y Año', 'conteo': 'Número de Registros'})
+        fig.update_layout(width=750, height=500)
         return fig
 
 # Crear la aplicación
