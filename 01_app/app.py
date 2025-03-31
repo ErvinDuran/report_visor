@@ -22,6 +22,11 @@ def get_municipios(departamento):
     municipios.insert(0, 'TODOS')
     return municipios
 
+def get_count_cat(df,valor):
+    cat = str(df['circ_descripcion'].value_counts()[valor])
+    return cat
+
+
 # Interfaz de usuario
 app_ui = ui.page_sidebar(
     ui.sidebar(
@@ -34,9 +39,36 @@ app_ui = ui.page_sidebar(
             'Total de registros',
             ui.tags.div(
                 ui.output_text('count'),
-                style='font-size: 90px; font-weight: bold;'
+                style='font-size: 50px; font-weight: bold;'
             ),
             theme='bg-gradient-orange-red',
+            full_screen=False
+        ),
+        ui.value_box(
+            'Total de registro Cat. 1-2',
+            ui.tags.div(
+                ui.output_text('cat_12'),
+                style='font-size: 50px; font-weight: bold;'
+            ),
+            theme='bg-gradient-blue-red',
+            full_screen=False
+        ),
+        ui.value_box(
+            'Total de registro Cat. 3',
+            ui.tags.div(
+                ui.output_text('cat_3'),
+                style='font-size: 50px; font-weight: bold;'
+            ),
+            theme='bg-gradient-blue-red',
+            full_screen=False
+        ),
+        ui.value_box(
+            'Total de registro Cat. 4',
+            ui.tags.div(
+                ui.output_text('cat_4'),
+                style='font-size: 50px; font-weight: bold;'
+            ),
+            theme='bg-gradient-blue-red',
             full_screen=False
         ),
         fill=False
@@ -81,6 +113,19 @@ def server(input, output, session):
     @render.text
     def count():
         return filtrado_dep_mun().shape[0]
+    
+    @render.text
+    def cat_12():
+        return get_count_cat(filtrado_dep_mun(),'1-2')
+    
+    @render.text
+    def cat_3():
+        return get_count_cat(filtrado_dep_mun(),'3')
+    
+    @render.text
+    def cat_4():
+        return get_count_cat(filtrado_dep_mun(),'4')
+    
 
     @render.data_frame
     def datos():
@@ -99,7 +144,7 @@ def server(input, output, session):
         fig = px.bar(conteo, x='anio', y='conteo', title='Registros por Año',
                      labels={'anio': 'Año', 'conteo': 'Número de Registros'})
 
-        fig.update_layout(width=750, height=500)
+        #fig.update_layout(width=750, height=500)
         return fig
 
 # Crear la aplicación
