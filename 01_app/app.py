@@ -22,9 +22,13 @@ def get_municipios(departamento):
     municipios.insert(0, 'TODOS')
     return municipios
 
-def get_count_cat(df,valor):
-    cat = str(df['circ_descripcion'].value_counts()[valor])
+def get_count_cat(df, valor):
+    try:
+        cat = str(df['circ_descripcion'].value_counts()[valor])
+    except KeyError:  # Esto maneja el caso en que 'valor' no se encuentra
+        cat = "0"
     return cat
+
 
 
 # Interfaz de usuario
